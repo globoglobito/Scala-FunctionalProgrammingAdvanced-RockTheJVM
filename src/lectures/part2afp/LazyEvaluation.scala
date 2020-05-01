@@ -77,7 +77,7 @@ object LazyEvaluation extends App {
 
 
 
-  // implement a lazily evaluated singly linked Stream of element
+  // implement a lazily evaluated singly linked Stream of element (it is implemented in StreamsPlayground in Exercises
 
 
   abstract class MyStream[+A] {
