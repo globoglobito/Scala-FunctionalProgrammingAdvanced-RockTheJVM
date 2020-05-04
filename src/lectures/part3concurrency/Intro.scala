@@ -18,7 +18,7 @@ object Intro extends App{
   // Creates a JVM thread that runs on top of an OS thread. This thread is a different one than the one used to evaluate all this code.
   //runnable.run() // does jack shit in parallel
   // if you want to run code in in parallel you need to call the start method on a thread instance and NOT the run method on the runnable
-  //aThread.join() // blocks until a thread finishes running
+  //aThread.join() // blocks  eveything until a thread finishes running
 
   // EX:1
   val threadHello = new Thread(() => (1 to 5).foreach(_ => println("hello"))) // receives a runnable (in lambda form) and prints 5 times hello
@@ -107,25 +107,25 @@ object Intro extends App{
 
   // Option #1: use synchronized() (Comment all previous threads executions)
 
-  def buySafe(account: BankAccount, thing: String, price: Int) =
-    account.synchronized{
-      account.amount -= price
-      //println("I've bought " + thing) // debug
-      //println("My account is now " + account) // debug
-    }
-  for (_ <- 1 to 10000) {
-    val account = new BankAccount(80000)
-    val thread1 = new Thread(() => buySafe(account, "potato", 1000))
-    val thread2 = new Thread(() => buySafe(account, "rhubarb", 9000))
+  //def buySafe(account: BankAccount, thing: String, price: Int) =
+  //  account.synchronized{
+  //    account.amount -= price
+  //    //println("I've bought " + thing) // debug
+  //    //println("My account is now " + account) // debug
+  //  }
+  ////for (_ <- 1 to 10000) {
+  //  val account = new BankAccount(80000)
+  //  val thread1 = new Thread(() => buySafe(account, "potato", 1000))
+  //  val thread2 = new Thread(() => buySafe(account, "rhubarb", 9000))
 
-    thread1.start()
-    thread2.start()
-    Thread.sleep(10)
-    if (account.amount != 70000) println("RACE CONDITION" + account.amount)
+    //thread1.start()
+    //thread2.start()
+    //Thread.sleep(10)
+    //if (account.amount != 70000) println("RACE CONDITION" + account.amount)
 
 
     // no issues :D
-  }
+  //}
 
   // Option 2: use @ volatile
 
@@ -133,12 +133,61 @@ object Intro extends App{
     class BankAccount(@volatile var amount: Int) {
     override def toString: String = "" + amount
   }
+    ...... and that's it
+    Better option is to use synchronized (more powerful)
+   */
 
-  // and thats it
+  // EX:1 Construct 50 threads, ea printing a message and print em in reverse order:
+
+  def inceptionThread(maxThread: Int, i: Int = 1): Thread = new Thread(() => {
+    if (i < maxThread) {
+      val newThread = inceptionThread(maxThread, i + 1)
+      newThread.start()
+      println(s"starting $i")
+      newThread.join()
+    }
+    println(s"Hello from thread $i")
+  })
+
+  inceptionThread(50).start()
+
+
+  //EX:2
+  var message = ""
+  val exThread = new Thread(() => {
+  Thread.sleep(1000)
+    message = "Something new"
+  })
+
+  message = "Something"
+  exThread.start()
+  Thread.sleep(2000)
+  println(message)
+
+  /*
+    Whats the value of message? almost always    "Something New" ... but not guaranteed
+    why?
+
+    (main thread)
+    message = "Something"
+    exThread.start() // starts our other thread
+    Thread.sleep(2000) (sleeps the main thread for 2s)
+    (exThread)
+    Thread.sleep(1000) // sleeps this thread for 1 sec
+
+    OS gives the cpu to another task outside that takes the cpu more than 2 secs
+    OS happens to give the cpu back to the main thread instead of exThread
+    println("Something")
+    OS gives the cpu to exThread
+
 
    */
 
-  // Better option is to use synchronized (more powerful)
+  // sleeping doesn't guarantee a thread sleep that amount, at least it will do this and doesn't guarantee order of execution
+
+
+
+
 
 
 
