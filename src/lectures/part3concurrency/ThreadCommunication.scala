@@ -323,7 +323,7 @@ object ThreadCommunication extends App {
   //  new Thread(() => sam.bow(pierre)).start() // sam's lock,    |  then attempts to start pierre's lock... however because both thread start at roughly the same moment
   //  new Thread(() => pierre.bow(sam)).start() //  pierre's locked ad well  |  then attempts to start sam's lock (which is already locked so we have a deadlock, nothing happens)
 
-  // 3 - livelock: oha fter you ad nauseum
+  // 3 - livelock: oh after you, ad nauseum
 
 
   new Thread(() => sam.pass(pierre)).start()
